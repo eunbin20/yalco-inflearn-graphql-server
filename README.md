@@ -1,3 +1,103 @@
+# Query
+
+Query는 데이터를 읽을 때(READ) 사용된다.<br/>
+루트타입, Type, Resolver로 구성된다.
+
+- 1. Query 루트 타입
+
+```gql
+type Query {
+  teams: [Team]
+}
+```
+
+- 자료 요청에 사용된 쿼리들 정의
+- 쿼리 명령문마다 반환될 데이터의 형태가 지정되어있다.
+  반환되는 데이터의 형태는 Type에 정의되어있다.⤵️
+
+- 2. Type
+
+```gql
+type Team {
+  id: Int
+  manager: String
+  office: String
+  extension_number: String
+  mascot: String
+  cleaning_duty: String
+  project: String
+}
+```
+
+반환될 데이터의 형태를 지정한다. 자료형을 가진 필드들로 구성된다.
+
+- 3. Resolver
+
+```gql
+const resolvers = {
+  Query: {
+    teams: () => database.teams
+  }
+}
+```
+
+- 쿼리 각각의 항목에 대해 적절한 데이터를 반환하는 액션 함수를 선언한다.
+- 실제 데이터베이스와 쿼리를 연결
+
+# Mutation
+
+Mutation은 데이터를 추가하거나(CREATE), 삭제하거나(DELETE), 업데이트(UPDATE)할 때 사용된다.
+
+- 1. Mutation 루트 타입
+
+```gql
+type Mutation {
+  deleteTeam(id: String): Team
+}
+```
+
+(String형태로 id를 받아 해당 아이디를 가진 Team 데이터를 삭제하고 삭제된 Team을 반환하는 Mutation)<br/>
+
+- 자료 추가, 삭제 업데이트에 사용되는 뮤테이션들을 정의
+- 쿼리 명령문마다 반환될 데이터의 형태가 지정되어있다.
+  반환되는 데이터의 형태는 Type에 정의되어있다.⤵️
+
+- 2. Type
+
+```gql
+type Team {
+  id: Int
+  manager: String
+  office: String
+  extension_number: String
+  mascot: String
+  cleaning_duty: String
+  project: String
+}
+```
+
+반환될 데이터의 형태를 지정한다. 자료형을 가진 필드들로 구성된다.
+
+- 3. Resolver
+
+```gql
+Mutation: {
+  deleteEquipment: (parent, args, context, info) => {
+    const deleted = database.equipments
+      .filter((equipment) => {
+        return equipment.id === args.id
+      })[0]
+    database.equipments = database.equipments
+      .filter((equipment) => {
+        return equipment.id !== args.id
+      })
+    return deleted
+  }
+}
+```
+
+- 각각의 뮤테이션에 대해 데이터를 적절하게 핸들링해주는 액션 함수를 정의한다.
+
 # GraphQL의 자료형
 
 ## 스칼라 타입
@@ -88,3 +188,21 @@ query {
 - 인자와 인풋 타입
 
 - 별칭으로 받아오기
+
+```gql
+query {
+  badGuys: peopleFiltered(sex: male, blood_type: B) {
+    first_name
+    last_name
+    sex
+    blood_type
+  }
+  newYorkers: peopleFiltered(from: "New York") {
+    first_name
+    last_name
+    from
+  }
+}
+```
+
+하나의 쿼리문에서 여러 종류의 데이터를 받아올 때, 적절한 별칭을 이용해 데이터를 받아오면 효율적으로 데이터를 받아올 수 있다.
